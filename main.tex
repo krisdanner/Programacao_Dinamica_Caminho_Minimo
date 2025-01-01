@@ -1,0 +1,157 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{amsfonts}
+
+\begin{document}
+
+\title{Algoritmo de Programação Dinâmica para o Probelma do Caminho Mínimo}
+\author{}
+\date{}
+\maketitle
+
+\section*{1. Introdução}
+O algoritmo em questão é uma aplicação da equação de Bellman-Ford para encontrar o caminho mínimo em um grafo. A abordagem usada é a Programação Dinâmica, onde buscamos o menor custo para percorrer de um nó inicial \( s \) a um nó final \( t \) em um grafo com \( n \) nós.
+
+\section*{2. Definições e Configurações Iniciais}
+Seja \( G = (V, E) \), onde \( V \) é o conjunto de nós e \( E \) o conjunto de arestas com os respectivos custos. O algoritmo usa os seguintes componentes:
+
+\begin{itemize}
+    \item \( n \): número de nós.
+    \item \( D \in \mathbb{R}^{n \times n} \): matriz de adjacência que representa os custos das arestas entre os nós, onde \( D_{ij} \) indica o custo da aresta de \( i \) para \( j \). Se não existir aresta direta entre os nós, usamos \( \infty \) para representar essa ausência.
+    \item \( s \): nó de origem.
+    \item \( t \): nó de destino.
+    \item \( J \in \mathbb{R}^{1 \times n} \): vetor de custos mínimos para alcançar cada nó, inicializado com \( J[s] = 0 \) e \( J[v] = \infty \) para todos os \( v \neq s \).
+    \item \( P \in \mathbb{Z}^{1 \times n} \): matriz de precedência para rastrear o caminho.
+\end{itemize}
+
+\section*{3. Inicialização}
+Inicializamos os vetores \( J \) e \( P \):
+\[
+J[v] = 
+\begin{cases}
+0 & \text{se } v = s \\
+\infty & \text{caso contrário}
+\end{cases}
+\]
+e
+\[
+P[v] = 0 \quad \forall v \in V
+\]
+
+\section*{4. Equação de Bellman-Ford}
+A equação de Bellman para atualizar os custos mínimos é dada por:
+\[
+J[v] = \min \left( J[v], J[u] + D[u,v] \right)
+\]
+onde \( u \) é um nó anterior e \( v \) o nó atual. Se o custo para alcançar \( v \) a partir de \( u \) for menor do que o custo já conhecido, então atualizamos o custo \( J[v] \) e a matriz de precedência \( P \).
+
+\section*{5. Passo a Passo do Algoritmo}
+
+\subsection*{5.1. Laços de Iteração}
+O algoritmo realiza \( n-1 \) iterações, onde \( n \) é o número de nós. Durante cada iteração, percorremos todos os pares de nós \( (u, v) \) para verificar se uma atualização é necessária.
+
+\begin{algorithm}
+\caption{Algoritmo do Caminho Mínimo}
+\begin{algorithmic}
+\STATE \textbf{Para cada iteração } $iter$ \textbf{ de } $1$ \textbf{ a } $n-1$:
+\STATE \quad \textbf{Para cada nó } $v$ \textbf{ de } $1$ \textbf{ a } $n$:
+\STATE \quad \quad \textbf{Para cada nó } $u$ \textbf{ de } $1$ \textbf{ a } $n$:
+\STATE \quad \quad \quad \textbf{Se } $D[u, v] \neq \infty$ \textbf{ e } $J[v] > J[u] + D[u, v]$ \textbf{ então }
+\STATE \quad \quad \quad \quad $J[v] \leftarrow J[u] + D[u, v]$
+\STATE \quad \quad \quad \quad $P[v] \leftarrow u$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection*{5.2. Impressão do Custo Mínimo}
+Após todas as iterações, o valor \( J[t] \) representa o custo mínimo do caminho de \( s \) a \( t \).
+\[
+\text{Custo mínimo da rota: } J[t]
+\]
+
+\subsection*{5.3. Rastreamento do Caminho Mínimo}
+
+\subsubsection*{Objetivo do Rastreamento}
+Depois de calcular os custos mínimos para todos os nós, o vetor de custos \( J \) fornece o custo mínimo para alcançar o nó \( t \) a partir de \( s \). No entanto, para conhecer a sequência de nós que compõem o caminho com esse custo mínimo, é necessário rastrear os nós intermediários que levam do nó final \( t \) ao nó inicial \( s \).
+
+\subsubsection*{Função da Matriz de Precedência \( P \)}
+A matriz de precedência \( P \) é utilizada para rastrear o nó anterior em cada atualização do custo mínimo. Quando o algoritmo verifica se é possível melhorar o custo para alcançar um nó \( v \) a partir de um nó \( u \) usando a equação de Bellman:
+\[
+J[v] = \min \left( J[v], J[u] + D[u, v] \right),
+\]
+se essa atualização resultar em um custo menor, então a matriz de precedência é atualizada para refletir que o melhor caminho para \( v \) passa por \( u \):
+\[
+P[v] = u.
+\]
+Isso significa que o nó \( u \) precede o nó \( v \) no caminho de custo mínimo.
+
+\subsubsection*{Como o Rastreamento Funciona}
+O rastreamento começa no nó de destino \( t \) e utiliza a matriz de precedência \( P \) para encontrar o nó anterior que leva a \( t \). Esse processo é repetido até que o nó de origem \( s \) seja alcançado. O passo a passo é o seguinte:
+
+\subsubsection*{Inicialização}
+O algoritmo inicia o rastreamento definindo o nó atual como \( v = t \), que é o nó de destino. A rota inicial é então definida como:
+\[
+\text{rota} = [t],
+\]
+pois começamos do final.
+
+\subsubsection*{Laço de Rastreamento}
+Enquanto o nó atual \( v \) não for igual ao nó de origem \( s \), continuamos retrocedendo:
+\begin{itemize}
+    \item Atualizamos \( v \) para o nó que precede o nó atual no caminho mínimo, isto é, \( v = P[v] \).
+    \item Adicionamos esse novo nó \( v \) ao início do vetor de rota.
+\end{itemize}
+
+\subsubsection*{Finalização}
+O laço termina quando \( v \) é igual ao nó de origem \( s \), indicando que alcançamos o início do caminho. O vetor \( \text{rota} \) agora contém todos os nós do caminho ótimo, desde \( s \) até \( t \).
+
+\subsubsection*{Exemplo para Esclarecimento}
+Suponha que temos a matriz de precedência \( P \) preenchida da seguinte forma após as iterações:
+\[
+P = [0, 1, 2, 3, 2].
+\]
+Isso indica que:
+\begin{itemize}
+    \item Para o nó 2, o nó precedente é 1.
+    \item Para o nó 3, o nó precedente é 2.
+    \item Para o nó 4, o nó precedente é 3.
+    \item Para o nó 5, o nó precedente é 2.
+\end{itemize}
+
+Se o nó de destino for 5 e o nó inicial for 1, o rastreamento se dará da seguinte forma:
+\begin{enumerate}
+    \item Começamos com \( v = 5 \), então a rota inicial é \( [5] \).
+    \item O nó que precede 5 é 2 (ou seja, \( P[5] = 2 \)), então a rota agora é \( [2, 5] \).
+    \item O nó que precede 2 é 1 (ou seja, \( P[2] = 1 \)), então a rota agora é \( [1, 2, 5] \).
+\end{enumerate}
+O rastreamento termina, pois chegamos ao nó inicial \( s = 1 \).
+
+\subsubsection*{Importância da Matriz de Precedência}
+A matriz de precedência \( P \) armazena a informação sobre quais são os nós predecessores no caminho de custo mínimo. Essa matriz é essencial para reconstruir o caminho ótimo, pois indica a direção que devemos seguir ao retroceder desde o nó final \( t \) até o nó inicial \( s \). Sem essa matriz, não seria possível determinar o caminho seguido, apenas o custo mínimo total.
+
+Portanto, a matriz de precedência serve para registrar o "mapa" do caminho, enquanto o vetor de custos \( J \) fornece o "preço" para percorrer esses caminhos.
+
+
+Para encontrar o caminho seguido, utilizamos a matriz de precedência \( P \), rastreando o caminho de volta a partir do nó \( t \).
+\begin{algorithm}
+\caption{Rastreio do Caminho}
+\begin{algorithmic}
+\STATE $v \leftarrow t$
+\STATE $\text{Rota} \leftarrow [v]$
+\WHILE{$v \neq s$}
+\STATE $v \leftarrow P[v]$
+\STATE $\text{Rota} \leftarrow [v, \text{Rota}]$
+\ENDWHILE
+\end{algorithmic}
+\end{algorithm}
+
+\section*{6. Resultado}
+O custo mínimo para o caminho de \( s \) a \( t \) é dado por \( J[t] \), e o caminho pode ser rastreado usando o vetor de precedência \( P \).
+
+\section*{7. Considerações Finais}
+O algoritmo de Bellman permite encontrar o caminho mínimo em grafos, mesmo quando existem ciclos negativos, desde que esses ciclos não sejam acessíveis a partir do nó de origem \( s \). A complexidade do algoritmo é \( O(n^3) \), devido aos três laços aninhados.
+
+\end{document}
+
